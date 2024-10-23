@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([-7.5, 110.5], 5);  // Adjust center and zoom
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Choropleth data
+        {% for region in regions %}
+        L.polygon({{ region.geometry }}).addTo(map)
+            .bindPopup("{{ region.name }}")
+            .setStyle({ color: "{{ region.color }}" });
+        {% endfor %}
+
+        // Point data
+        {% for location in locations %}
+        L.marker([{{ location.latitude }}, {{ location.longitude }}]).addTo(map)
+            .bindPopup("{{ location.name }}");
+        {% endfor %}
+    </script>
+</body>
+</html>
