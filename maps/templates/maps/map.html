@@ -3,34 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map</title>
+    <title>Regions and Locations Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        #map { height: 600px; }
+        #map {
+            height: 600px; /* Set the height of the map */
+            width: 100%; /* Set the width of the map */
+        }
     </style>
 </head>
 <body>
+    <h1>Regions and Locations Map</h1>
     <div id="map"></div>
+
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map').setView([-7.5, 110.5], 5);  // Adjust center and zoom
+        // Initialize the map and set its view
+        const map = L.map('map').setView([-7.7956, 110.3695], 6); // Adjust coordinates as needed
 
+        // Set the tile layer (you can change the tile provider if needed)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Choropleth data
-        {% for region in regions %}
-        L.polygon({{ region.geometry }}).addTo(map)
-            .bindPopup("{{ region.name }}")
-            .setStyle({ color: "{{ region.color }}" });
-        {% endfor %}
+        // Function to fetch regions and locations from the API
+        async function fetchData() {
+            try {
+                const regionResponse = await fetch('/regions/');
+                const regions = await regionResponse.json();
 
-        // Point data
-        {% for location in locations %}
-        L.marker([{{ location.latitude }}, {{ location.longitude }}]).addTo(map)
-            .bindPopup("{{ location.name }}");
-        {% endfor %}
+                const locationResponse = await fetch('/locations/');
+                const locations = await locationResponse.json();
+
+                // Add regions to the map
+                regions.forEach(region => {
+                    const polygonCoords = JSON.parse(region.polygon); // Assuming `polygon` is GeoJSON
+                    const latLngs = polygonCoords.coordinates[0].map(coord => [coord[1], coord[0]]); // Convert to [lat, lng]
+
+                    L.polygon(latLngs, { color: region.color }).addTo(map).bindPopup(region.name);
+                });
+
+                // Add locations to the map
+                locations.forEach(location => {
+                    const pointCoords = JSON.parse(location.point); // Assuming `point` is GeoJSON
+                    const markerCoords = [pointCoords.coordinates[1], pointCoords.coordinates[0]]; // Convert to [lat, lng]
+
+                    L.marker(markerCoords).addTo(map).bindPopup(location.name);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        fetchData(); // Call the fetchData function to populate the map
     </script>
 </body>
 </html>

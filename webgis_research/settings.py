@@ -86,9 +86,9 @@ WSGI_APPLICATION = 'webgis_research.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',  # Use PostGIS backend
-        'NAME': 'webgis_research_db',  # Replace with your database name
-        'USER': 'root',        # Replace with your database username
-        'PASSWORD': '',    # Replace with your database password
+        'NAME': 'webgis_db',  # Replace with your database name
+        'USER': 'postgis_test',        # Replace with your database username
+        'PASSWORD': '12345',    # Replace with your database password
         'HOST': 'localhost',            # Set to your database host
         'PORT': '5432',                 # Default PostgreSQL port
     }
@@ -136,6 +136,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Set the GDAL library path
-GDAL_LIBRARY_PATH = r'C:\OSGeo4W\bin\gdal309'
+LEAFLET_CONFIG = {
+    'DEFAULT_CENTER': (51.505, -0.09),
+    'DEFAULT_ZOOM': 13,
+    'MIN_ZOOM': 3,
+    'MAX_ZOOM': 18,
+    'SCALE': 'both',
+    'ATTRIBUTION_PREFIX': 'Powered by Django-Leaflet',
+}
 
