@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.renderers import JSONRenderer
-from .models import Region, Location
+from .models import Region, Location, Post
+from django.shortcuts import render, get_object_or_404
 from .serializers import RegionGeoJSONSerializer, LocationGeoJSONSerializer
 
 def map_view(request):
@@ -40,3 +41,13 @@ from .serializers import PostSerializer
 class PostListView(ListAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+
+def posts(request):
+    return render(request, 'maps/posts.html')     
+
+def post_detail(request, slug):
+    # Fetch the post using slug or return 404 if not found
+    post = get_object_or_404(Post, slug=slug)
+    
+    # Render the detail page with the post data
+    return render(request, 'maps/post_detail.html', {'post': post})
