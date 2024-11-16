@@ -32,3 +32,11 @@ class RegionListCreateView(ListAPIView):
 class LocationListCreateView(ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationGeoJSONSerializer
+
+from rest_framework.generics import ListAPIView
+from .models import Post
+from .serializers import PostSerializer
+
+class PostListView(ListAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
