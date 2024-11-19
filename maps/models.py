@@ -27,6 +27,7 @@ class Post(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    featured_image = models.ImageField(upload_to='featured_images/', null=True, blank=True)  # Featured Image Field
 
     def save(self, *args, **kwargs):
         if not self.slug:

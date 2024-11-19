@@ -45,9 +45,17 @@ class PostListView(ListAPIView):
 def posts(request):
     return render(request, 'maps/posts.html')     
 
-def post_detail(request, slug):
-    # Fetch the post using slug or return 404 if not found
-    post = get_object_or_404(Post, slug=slug)
+# def post_detail(request, slug):
+#     # Fetch the post using slug or return 404 if not found
+#     post = get_object_or_404(Post, slug=slug)
     
-    # Render the detail page with the post data
+#     # Render the detail page with the post data
+#     return render(request, 'maps/post_detail.html', {'post': post})
+
+from django.shortcuts import render, get_object_or_404
+from .models import Post
+
+def post_detail(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
     return render(request, 'maps/post_detail.html', {'post': post})
+

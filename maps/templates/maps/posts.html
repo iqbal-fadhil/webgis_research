@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posts</title>
+    <title>All Posts</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -29,7 +29,7 @@
 
     <!-- Main Content -->
     <div class="container my-4">
-        <h1 class="text-center mb-4">Posts</h1>
+        <h1 class="text-center mb-4">All Posts</h1>
         <div id="post-list" class="row g-4">
             <!-- Posts will be dynamically loaded here -->
         </div>
@@ -38,26 +38,28 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fetch posts
+        // Fetch posts dynamically from the API
         async function fetchPosts() {
             try {
-                const response = await fetch('/posts/');
+                const response = await fetch('/posts/'); // Adjust the endpoint if needed
                 const posts = await response.json();
 
                 const postList = document.getElementById('post-list');
-                postList.innerHTML = '';
+                postList.innerHTML = ''; // Clear any existing content
 
                 posts.forEach(post => {
                     const postContainer = document.createElement('div');
-                    postContainer.className = 'col-md-4 mb-4';
+                    postContainer.className = 'col-md-4';
                     postContainer.innerHTML = `
                         <div class="card">
-                            <img src="https://via.placeholder.com/150" class="card-img-top" alt="${post.title}">
+                            <!-- Display the featured image or a placeholder -->
+                            ${post.featured_image 
+                                ? `<img src="${post.featured_image}" class="card-img-top" alt="${post.title}">` 
+                                : `<img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Placeholder image">`}
                             <div class="card-body">
                                 <h5 class="card-title">${post.title}</h5>
                                 <p class="card-text">${post.content.slice(0, 100)}...</p>
-                                <p><small>Posted on: ${new Date(post.created_at).toLocaleDateString()}</small></p>
-                                <a href="/all-posts/${post.slug}/" class="btn btn-primary">Read More</a>
+                                <a href="/all-posts/${post.id}/" class="btn btn-primary">Read More</a>
                             </div>
                         </div>
                     `;
@@ -68,6 +70,7 @@
             }
         }
 
+        // Call fetchPosts on page load
         fetchPosts();
     </script>
 </body>

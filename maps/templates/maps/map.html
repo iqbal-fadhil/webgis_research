@@ -23,7 +23,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">GeoApp</a>
+            <a class="navbar-brand" href="#">Mangrove Monitoring</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -42,7 +42,7 @@
 
     <!-- Main Content -->
     <div class="container my-4">
-        <h1 class="text-center">Regions and Locations Map</h1>
+        <h1 class="text-center">Mangrove Locations</h1>
         <div id="map"></div>
 
         <h2 class="mt-5">Recent Posts</h2>
@@ -110,7 +110,7 @@
                     postContainer.innerHTML = `
                         <h3>${post.title}</h3>
                         <p>${post.content.slice(0, 100)}...</p> <!-- Show only excerpt -->
-                        <a href="/posts/${post.id}/" class="btn btn-primary">Read More</a> <!-- Read More button -->
+                        <a href="/all-posts/${post.id}/" class="btn btn-primary">Read More</a> <!-- Read More button -->
                     `;
                     postList.appendChild(postContainer); // Append to the post list
                 });
