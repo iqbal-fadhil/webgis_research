@@ -13,7 +13,7 @@ class Location(models.Model):
     name = models.CharField(max_length=100)
     # latitude = models.FloatField()  # Optional, but can use for display
     # longitude = models.FloatField()  # Optional, but can use for display
-    point = gis_models.PointField()  # For point data
+    point = gis_models.PointField(null=True, blank=True)  # For point data
 
     def __str__(self):
         return self.name
@@ -44,3 +44,23 @@ class Post(models.Model):
     def __str__(self):
         return self.title
 
+# models.py (Updated)
+from django.db import models
+from django.utils.text import slugify
+from django.contrib.gis.db import models as gis_models
+
+class MapChanges(models.Model):
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
+    region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
+    animation_url = models.URLField(help_text="URL to GIF or video that shows the map changes")
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.location.name}-{self.region.name}")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        location_name = self.location.name if self.location else "No location"
+        region_name = self.region.name if self.region else "No region"
+        return f"Map Changes for {location_name} in {region_name}"

@@ -118,3 +118,55 @@ def get_geojson(request, slug):
         "region": region_geojson,
         "location": location_geojson,
     })
+
+# views.py
+# from django.shortcuts import render, get_object_or_404
+from .models import MapChanges
+
+# def map_changes_detail(request, slug):
+#     map_change = get_object_or_404(MapChanges, slug=slug)
+#     return render(request, 'maps/map_changes_detail.html', {'map_change': map_change})
+
+def map_changes_detail(request, slug):
+    # Fetch the MapChanges object using the slug
+    map_change = get_object_or_404(MapChanges, slug=slug)
+    
+    return render(request, 'maps/map_changes_detail.html', {
+        'map_change': map_change,
+    })
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import MapChanges
+
+def geojson_view(request, slug):
+    # Get the MapChange object by slug
+    map_change = get_object_or_404(MapChanges, slug=slug)
+
+    # Prepare GeoJSON data for region and location
+    geojson_data = {
+        'location': None,
+        'region': None,
+    }
+
+    if map_change.location:
+        geojson_data['location'] = {
+            "type": "Point",
+            "coordinates": [map_change.location.point.x, map_change.location.point.y],
+            "properties": {
+                "name": map_change.location.name,
+                "description": map_change.location.description,
+            }
+        }
+
+    if map_change.region:
+        geojson_data['region'] = {
+            "type": "Polygon",
+            "coordinates": map_change.region.polygon.coords,
+            "properties": {
+                "name": map_change.region.name,
+                "color": map_change.region.color,
+            }
+        }
+
+    return JsonResponse(geojson_data)

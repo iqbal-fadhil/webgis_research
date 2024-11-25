@@ -50,7 +50,7 @@
 
 from django.contrib import admin
 from leaflet.admin import LeafletGeoAdmin
-from .models import Region, Location, Post
+from .models import Region, Location, Post, MapChanges
 
 class RegionAdmin(LeafletGeoAdmin):
     list_display = ('name', 'color')
@@ -61,6 +61,12 @@ class LocationAdmin(LeafletGeoAdmin):
 class PostAdmin(LeafletGeoAdmin):
     list_display = ('title', 'slug')    
 
+class MapChangesAdmin(LeafletGeoAdmin):
+    list_display = ('animation_url', 'slug')    
+
+
+
 admin.site.register(Region, RegionAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Post, PostAdmin)
+admin.site.register(MapChanges, MapChangesAdmin)
