@@ -8,5 +8,5 @@ urlpatterns = [
     path('posts/', PostListView.as_view(), name='post-list-create'),
     path('', map_view, name='map_view'),
     path('all-posts/', views.posts, name='posts'),
-    path('all-posts/<int:post_id>/', views.post_detail, name='post_detail'),
+    path('all-posts/<str:slug>/', views.post_detail, name='post_detail'),
 ]

@@ -28,6 +28,13 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     featured_image = models.ImageField(upload_to='featured_images/', null=True, blank=True)  # Featured Image Field
+    location = models.ForeignKey(
+        Location, on_delete=models.SET_NULL, null=True, blank=True, related_name="posts"
+    )  # Optional reference to a specific location
+    region = models.ForeignKey(
+        Region, on_delete=models.SET_NULL, null=True, blank=True, related_name="posts"
+    )  # Optional reference to a region
+
 
     def save(self, *args, **kwargs):
         if not self.slug:

@@ -25,7 +25,24 @@ class LocationGeoJSONSerializer(serializers.ModelSerializer):
 from rest_framework import serializers
 from .models import Post
 
+# class PostSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Post
+#         fields = ['id', 'title', 'slug', 'content', 'created_at', 'updated_at']
+
+# serializers.py
+
+from rest_framework import serializers
+from .models import Post
+
 class PostSerializer(serializers.ModelSerializer):
+    region_coords = serializers.SerializerMethodField()
+
     class Meta:
         model = Post
-        fields = ['id', 'title', 'slug', 'content', 'created_at', 'updated_at']
+        fields = ['title', 'content', 'created_at', 'updated_at', 'region_coords']
+
+    def get_region_coords(self, obj):
+        if obj.region and obj.region.polygon:
+            return obj.region.polygon.coords[0]  # Returning the coordinates
+        return []

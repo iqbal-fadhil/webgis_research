@@ -32,10 +32,21 @@
         <h1>{{ post.title }}</h1>
         <p>{{ post.content }}</p>
         <p><small>Posted on: {{ post.created_at|date:"F j, Y" }}</small></p>
-        <!-- If there's a featured image -->
+
+        <!-- Featured Image -->
         {% if post.featured_image %}
-            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid">
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid mb-4">
         {% endif %}
+
+        <!-- Location and Region -->
+        <div class="mb-3">
+            {% if post.location %}
+                <p><strong>Location:</strong> {{ post.location }}</p>
+            {% endif %}
+            {% if post.region %}
+                <p><strong>Region:</strong> {{ post.region }}</p>
+            {% endif %}
+        </div>
     </div>
 
     <!-- Scripts -->

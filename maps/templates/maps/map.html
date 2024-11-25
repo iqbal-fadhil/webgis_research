@@ -55,7 +55,7 @@
 
     <script>
         // Initialize the map and set its view
-        const map = L.map('map').setView([-7.7956, 110.3695], 6); // Adjust coordinates as needed
+        const map = L.map('map').setView([-8.311018, 112.584429], 10); // Adjust coordinates as needed
 
         // Set the tile layer (you can change the tile provider if needed)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -110,7 +110,7 @@
                     postContainer.innerHTML = `
                         <h3>${post.title}</h3>
                         <p>${post.content.slice(0, 100)}...</p> <!-- Show only excerpt -->
-                        <a href="/all-posts/${post.id}/" class="btn btn-primary">Read More</a> <!-- Read More button -->
+                        <a href="/all-posts/${post.slug}/" class="btn btn-primary">Read More</a> <!-- Read More button -->
                     `;
                     postList.appendChild(postContainer); // Append to the post list
                 });
