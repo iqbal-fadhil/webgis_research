@@ -45,31 +45,67 @@ class PostListView(ListAPIView):
 def posts(request):
     return render(request, 'maps/posts.html')     
 
+# def post_detail(request, slug):
+#     # Fetch the post using slug or return 404 if not found
+#     post = get_object_or_404(Post, slug=slug)
+    
+#     # Render the detail page with the post data
+#     return render(request, 'maps/post_detail.html', {'post': post})
+
+
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from .models import Post
+
 def post_detail(request, slug):
     # Fetch the post using slug or return 404 if not found
     post = get_object_or_404(Post, slug=slug)
-    
-    # Render the detail page with the post data
-    return render(request, 'maps/post_detail.html', {'post': post})
+    region = post.region
+    location = post.location
 
-from django.shortcuts import render, get_object_or_404
-from .models import Post
+    return render(request, 'maps/post_detail.html', {
+        'post': post,
+        'region': region,
+        'location': location,
+    })
 
-# def post_detail(request, post_id):
-#     post = get_object_or_404(Post, id=post_id)
-#     return render(request, 'maps/post_detail.html', {'post': post})
 
-# def region_coords(region):
-#     if region and region.polygon:
-#         return region.polygon.coords[0]  # Assuming the polygon has a list of coordinates
-#     return []
+def get_geojson(request, slug):
+    # Fetch the post using slug
+    post = get_object_or_404(Post, slug=slug)
 
-# def post_detail(request, slug):
-#     post = Post.objects.get(slug=slug)
-#     region_coordinates = region_coords(post.region)
-#     context = {
-#         'post': post,
-#         'region_coordinates': region_coordinates,
-#     }
-#     return render(request, 'maps/post_detail.html', context)
+    region_geojson = None
+    location_geojson = None
 
+    if post.region and post.region.polygon:
+        region_geojson = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": list(post.region.polygon.coords),  # Region as GeoJSON
+            },
+            "properties": {
+                "name": post.region.name,
+                "color": post.region.color,
+            },
+        }
+
+    if post.location and post.location.point:
+        location_geojson = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [post.location.point.x, post.location.point.y],  # Location as GeoJSON
+            },
+            "properties": {
+                "name": post.location.name,
+            },
+        }
+
+    if not region_geojson and not location_geojson:
+        return JsonResponse({"error": "Region or location missing for this post"}, status=400)
+
+    return JsonResponse({
+        "region": region_geojson,
+        "location": location_geojson,
+    })
