@@ -46,43 +46,56 @@
         // Initialize map
         const map = L.map('map').setView([-8.311018, 112.584429], 8);
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+    // Add a base map layer (e.g., OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
 
-        // Fetch GeoJSON data
-        fetch(`/geojson/{{ post.slug }}/`)
-    .then(response => response.json())
-    .then(data => {
-        console.log(data); // Debugging
+    // Fetch GeoJSON data for the region and location
+    async function loadGeoJSON() {
+        try {
+            const response = await fetch(`/geojson/{{ post.slug }}/`);
+            const data = await response.json();
 
-        if (data.error) {
-            console.error('GeoJSON Error:', data.error);
-            return;
+            if (data.region) {
+                // Add the region polygon
+                const regionLayer = L.geoJSON(data.region, {
+                    style: (feature) => ({
+                        color: feature.properties.color,
+                        weight: 2,
+                    }),
+                    onEachFeature: (feature, layer) => {
+                        // Make the region clickable and show its name
+                        layer.bindPopup(`<b>Region:</b> ${feature.properties.name}`);
+                    },
+                }).addTo(map);
+
+                // Adjust map bounds to the region
+                map.fitBounds(regionLayer.getBounds());
+            }
+
+            if (data.location) {
+                // Add the location point
+                const locationLayer = L.geoJSON(data.location, {
+                    pointToLayer: (feature, latlng) => {
+                        return L.marker(latlng);
+                    },
+                    onEachFeature: (feature, layer) => {
+                        // Make the location clickable and show its name
+                        layer.bindPopup(`<b>Location:</b> ${feature.properties.name}`);
+                    },
+                }).addTo(map);
+
+                // Adjust map bounds to include the location
+                map.fitBounds(locationLayer.getBounds());
+            }
+        } catch (error) {
+            console.error('GeoJSON Error:', error);
         }
+    }
 
-        // Add region polygon
-        const region = L.geoJSON(data.region, {
-            style: (feature) => ({
-                color: feature.properties.color,
-                weight: 2,
-                fillOpacity: 0.4,
-            }),
-        }).addTo(map);
-
-        // Add location point
-        const location = L.geoJSON(data.location, {
-            pointToLayer: (feature, latlng) => {
-                return L.marker(latlng).bindPopup(feature.properties.name);
-            },
-        }).addTo(map);
-
-        // Fit map to bounds
-        const bounds = region.getBounds();
-        map.fitBounds(bounds);
-    })
-    .catch(error => console.error('Error loading GeoJSON:', error));
+    // Load GeoJSON data
+    loadGeoJSON();
 
     </script>
 </body>

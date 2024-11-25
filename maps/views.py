@@ -70,41 +70,50 @@ def post_detail(request, slug):
     })
 
 
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from .models import Post
+
 def get_geojson(request, slug):
     # Fetch the post using slug
     post = get_object_or_404(Post, slug=slug)
 
+    # Initialize empty GeoJSON structures
     region_geojson = None
     location_geojson = None
 
+    # Generate GeoJSON for the region if it exists and has a polygon
     if post.region and post.region.polygon:
         region_geojson = {
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": list(post.region.polygon.coords),  # Region as GeoJSON
+                "coordinates": list(post.region.polygon.coords),  # Ensure the polygon is in GeoJSON format
             },
             "properties": {
                 "name": post.region.name,
-                "color": post.region.color,
+                "color": post.region.color,  # Include region-specific styling
             },
         }
 
+    # Generate GeoJSON for the location if it exists and has a point
     if post.location and post.location.point:
         location_geojson = {
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [post.location.point.x, post.location.point.y],  # Location as GeoJSON
+                "coordinates": [post.location.point.x, post.location.point.y],  # Ensure the point is in GeoJSON format
             },
             "properties": {
-                "name": post.location.name,
+                "name": post.location.name,  # Include location-specific data
             },
         }
 
+    # Return an error if neither region nor location is available
     if not region_geojson and not location_geojson:
         return JsonResponse({"error": "Region or location missing for this post"}, status=400)
 
+    # Return the GeoJSON data for the region and location
     return JsonResponse({
         "region": region_geojson,
         "location": location_geojson,
