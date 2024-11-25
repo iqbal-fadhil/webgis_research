@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import map_view, RegionListCreateView, LocationListCreateView, PostListView, post_detail, get_geojson, map_changes_detail
+from .views import map_view, RegionListCreateView, LocationListCreateView, PostListView, post_detail, get_geojson, map_changes_detail, map_changes_list
 from . import views
 
 urlpatterns = [
@@ -10,5 +10,6 @@ urlpatterns = [
     path('all-posts/', views.posts, name='posts'),
     path('all-posts/<str:slug>/', views.post_detail, name='post_detail'),
     path('geojson/<slug:slug>/', views.get_geojson, name='get_geojson'),
+    path('map-changes/', views.map_changes_list, name='map_changes_list'),
     path('map-changes/<slug:slug>/', views.map_changes_detail, name='map_changes_detail'),
 ]

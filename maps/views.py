@@ -127,6 +127,17 @@ from .models import MapChanges
 #     map_change = get_object_or_404(MapChanges, slug=slug)
 #     return render(request, 'maps/map_changes_detail.html', {'map_change': map_change})
 
+# views.py
+from django.shortcuts import render
+
+def map_changes_list(request):
+    # Get all map changes from the database
+    map_changes = MapChanges.objects.all()
+
+    # Render the template with the map changes list
+    return render(request, 'maps/map_changes_list.html', {'map_changes': map_changes})
+
+
 def map_changes_detail(request, slug):
     # Fetch the MapChanges object using the slug
     map_change = get_object_or_404(MapChanges, slug=slug)
