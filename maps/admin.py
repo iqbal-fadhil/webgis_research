@@ -61,12 +61,28 @@ class LocationAdmin(LeafletGeoAdmin):
 class PostAdmin(LeafletGeoAdmin):
     list_display = ('title', 'slug')    
 
-class MapChangesAdmin(LeafletGeoAdmin):
-    list_display = ('animation_url', 'slug')    
+# class MapChangesAdmin(LeafletGeoAdmin):
+#     list_display = ('animation_url', 'slug')    
+
+from django.contrib import admin
+from .models import MapChanges, MapChangeImage
+
+
+from django.contrib import admin
+from .models import MapChanges, MapChangeImage
+
+class MapChangeImageInline(admin.TabularInline):
+    model = MapChangeImage
+    extra = 1  # Number of blank forms to display
+
+@admin.register(MapChanges)
+class MapChangesAdmin(admin.ModelAdmin):
+    list_display = ('location', 'region', 'slug')
+    prepopulated_fields = {'slug': ('location', 'region')}
+    inlines = [MapChangeImageInline]
 
 
 
 admin.site.register(Region, RegionAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Post, PostAdmin)
-admin.site.register(MapChanges, MapChangesAdmin)

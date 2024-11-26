@@ -150,34 +150,69 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from .models import MapChanges
 
+# def geojson_view(request, slug):
+#     map_change = get_object_or_404(MapChanges, slug=slug)
+
+#     # Debugging
+#     if map_change.region:
+#         print("Region GeoJSON:", map_change.region.geojson)
+#     else:
+#         print("No Region GeoJSON")
+
+#     if map_change.location:
+#         print("Location GeoJSON:", map_change.location.geojson)
+#     else:
+#         print("No Location GeoJSON")
+
+#     return JsonResponse({
+#         "region": map_change.region.geojson if map_change.region else None,
+#         "location": map_change.location.geojson if map_change.location else None,
+#     })
+
+
+# # def geojson_view(request, slug):
+#     # Get the MapChange object by slug
+#     map_change = get_object_or_404(MapChanges, slug=slug)
+
+#     # Prepare GeoJSON data for region and location
+#     geojson_data = {
+#         'location': None,
+#         'region': None,
+#     }
+
+    # if map_change.location:
+    #     geojson_data['location'] = {
+    #         "type": "Point",
+    #         "coordinates": [map_change.location.point.x, map_change.location.point.y],
+    #         "properties": {
+    #             "name": map_change.location.name,
+    #             "description": map_change.location.description,
+    #         }
+    #     }
+
+    # if map_change.region:
+    #     geojson_data['region'] = {
+    #         "type": "Polygon",
+    #         "coordinates": map_change.region.polygon.coords,
+    #         "properties": {
+    #             "name": map_change.region.name,
+    #             "color": map_change.region.color,
+    #         }
+    #     }
+
+    # return JsonResponse(geojson_data)
+
+
+from django.http import JsonResponse
+from .models import MapChanges
+
 def geojson_view(request, slug):
-    # Get the MapChange object by slug
-    map_change = get_object_or_404(MapChanges, slug=slug)
-
-    # Prepare GeoJSON data for region and location
-    geojson_data = {
-        'location': None,
-        'region': None,
-    }
-
-    if map_change.location:
-        geojson_data['location'] = {
-            "type": "Point",
-            "coordinates": [map_change.location.point.x, map_change.location.point.y],
-            "properties": {
-                "name": map_change.location.name,
-                "description": map_change.location.description,
-            }
+    try:
+        map_change = MapChanges.objects.get(slug=slug)
+        geojson_data = {
+            "region": map_change.region.geojson if map_change.region else None,
+            "location": map_change.location.geojson if map_change.location else None,
         }
-
-    if map_change.region:
-        geojson_data['region'] = {
-            "type": "Polygon",
-            "coordinates": map_change.region.polygon.coords,
-            "properties": {
-                "name": map_change.region.name,
-                "color": map_change.region.color,
-            }
-        }
-
-    return JsonResponse(geojson_data)
+        return JsonResponse(geojson_data)
+    except MapChanges.DoesNotExist:
+        return JsonResponse({"error": "MapChange not found"}, status=404)

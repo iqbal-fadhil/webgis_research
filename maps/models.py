@@ -4,16 +4,16 @@ from django.contrib.gis.db import models as gis_models
 class Region(models.Model):
     name = models.CharField(max_length=100)
     color = models.CharField(max_length=7)
-    polygon = gis_models.PolygonField()  # For polygon data
+    polygon = gis_models.PolygonField(null=True, blank=True)
+    geojson = models.JSONField(null=True, blank=True)   # For polygon data
 
     def __str__(self):
         return self.name
 
 class Location(models.Model):
     name = models.CharField(max_length=100)
-    # latitude = models.FloatField()  # Optional, but can use for display
-    # longitude = models.FloatField()  # Optional, but can use for display
-    point = gis_models.PointField(null=True, blank=True)  # For point data
+    point = gis_models.PointField(null=True, blank=True) 
+    geojson = models.JSONField(null=True, blank=True)  # For point data
 
     def __str__(self):
         return self.name
@@ -49,10 +49,14 @@ from django.db import models
 from django.utils.text import slugify
 from django.contrib.gis.db import models as gis_models
 
+from django.db import models
+from django.utils.text import slugify
+
+
 class MapChanges(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
     region = models.ForeignKey(Region, on_delete=models.CASCADE, null=True, blank=True)
-    animation_url = models.URLField(help_text="URL to GIF or video that shows the map changes")
+    description = models.TextField(blank=True, null=True)  # Added description field
     slug = models.SlugField(unique=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -64,3 +68,12 @@ class MapChanges(models.Model):
         location_name = self.location.name if self.location else "No location"
         region_name = self.region.name if self.region else "No region"
         return f"Map Changes for {location_name} in {region_name}"
+
+
+class MapChangeImage(models.Model):
+    map_change = models.ForeignKey(MapChanges, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="map_changes/images/")
+    caption = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"Image for {self.map_change} - {self.caption or 'No Caption'}"

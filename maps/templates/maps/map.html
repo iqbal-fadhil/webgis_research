@@ -33,6 +33,9 @@
                         <a class="nav-link active" href="/">Home</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="/map-changes/">Map Changes</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="/all-posts/">Posts</a>
                     </li>
                 </ul>
@@ -54,72 +57,81 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // Initialize the map and set its view
+        // Initialize the map
         const map = L.map('map').setView([-8.311018, 112.584429], 10); // Adjust coordinates as needed
 
-        // Set the tile layer (you can change the tile provider if needed)
+        // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Function to fetch regions and locations from the API
-        async function fetchData() {
+        // Fetch regions and locations data
+        async function fetchRegionsAndLocations() {
             try {
+                // Fetch regions data
                 const regionResponse = await fetch('/regions/');
+                if (!regionResponse.ok) throw new Error('Failed to fetch regions');
                 const regions = await regionResponse.json();
-
-                const locationResponse = await fetch('/locations/');
-                const locations = await locationResponse.json();
 
                 // Add regions to the map
                 regions.forEach(region => {
                     const polygonCoords = JSON.parse(region.polygon); // Assuming `polygon` is GeoJSON
                     const latLngs = polygonCoords.coordinates[0].map(coord => [coord[1], coord[0]]); // Convert to [lat, lng]
 
-                    L.polygon(latLngs, { color: region.color }).addTo(map).bindPopup(region.name);
+                    L.polygon(latLngs, { color: region.color }).addTo(map).bindPopup(`<strong>${region.name}</strong>`);
                 });
+
+                // Fetch locations data
+                const locationResponse = await fetch('/locations/');
+                if (!locationResponse.ok) throw new Error('Failed to fetch locations');
+                const locations = await locationResponse.json();
 
                 // Add locations to the map
                 locations.forEach(location => {
                     const pointCoords = JSON.parse(location.point); // Assuming `point` is GeoJSON
                     const markerCoords = [pointCoords.coordinates[1], pointCoords.coordinates[0]]; // Convert to [lat, lng]
 
-                    L.marker(markerCoords).addTo(map).bindPopup(location.name);
+                    L.marker(markerCoords).addTo(map).bindPopup(`<strong>${location.name}</strong>`);
                 });
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching regions or locations:', error.message);
             }
         }
 
-        fetchData(); // Call the fetchData function to populate the map
+        // Load map data
+        fetchRegionsAndLocations();
     </script>
 
     <script>
+        // Fetch recent posts
         async function fetchPosts() {
             try {
                 const response = await fetch('/posts/');
+                if (!response.ok) throw new Error('Failed to fetch posts');
                 const posts = await response.json();
 
                 const postList = document.getElementById('post-list');
-                postList.innerHTML = ''; // Clear previous content if any
+                postList.innerHTML = ''; // Clear previous content
 
-                posts.slice(0, 3).forEach(post => { // Limit to 3 posts
+                // Limit to 3 posts and display
+                posts.slice(0, 3).forEach(post => {
                     const postContainer = document.createElement('div');
-                    postContainer.className = 'post-item'; // Add class for styling
+                    postContainer.className = 'post-item';
                     postContainer.innerHTML = `
                         <h3>${post.title}</h3>
-                        <p>${post.content.slice(0, 100)}...</p> <!-- Show only excerpt -->
-                        <a href="/all-posts/${post.slug}/" class="btn btn-primary">Read More</a> <!-- Read More button -->
+                        <p>${post.content.slice(0, 100)}...</p>
+                        <a href="/all-posts/${post.slug}/" class="btn btn-primary">Read More</a>
                     `;
-                    postList.appendChild(postContainer); // Append to the post list
+                    postList.appendChild(postContainer);
                 });
             } catch (error) {
-                console.error('Error fetching posts:', error);
+                console.error('Error fetching posts:', error.message);
             }
         }
 
-        fetchPosts(); // Call fetchPosts to load posts
+        // Load posts data
+        fetchPosts();
     </script>
 </body>
 </html>

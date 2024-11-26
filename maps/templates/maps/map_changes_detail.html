@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map Changes - {{ map_change.location.name }} | {{ map_change.region.name }}</title>
+    <title>Map Changes {{ map_change.location.name }} {{ map_change.region.name }}</title>
     <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <style>
@@ -23,14 +23,17 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">GeoApp</a>
+            <a class="navbar-brand" href="#">Mangrove Monitoring</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Home</a>
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/map-changes/">Map Changes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/all-posts/">Posts</a>
@@ -41,26 +44,35 @@
     </nav>
 
     <div class="container my-4">
-        <h1>{{ map_change.location.name }} - {{ map_change.region.name }}</h1>
+        <h1>{{ map_change.location.name }} {{ map_change.region.name }}</h1>
         <p>{{ map_change.location.description }}</p>
         <p>{{ map_change.region.description }}</p>
+        <p>{{ map_change.description}}</p>
 
-        <!-- Leaflet Map to Display Region and Location -->
-        <div id="map"></div>
 
-        <!-- YouTube Video -->
-        {% if map_change.animation_url %}
-            <div id="video">
-                {% with video_id=map_change.animation_url|slice:"32:" %}
-                    <iframe width="100%" height="400" 
-                            src="https://www.youtube.com/embed/{{ video_id }}" 
-                            frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-                    </iframe>
-                {% endwith %}
+        <div id="imageSlider" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for image in map_change.images.all %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ image.image.url }}" class="d-block w-100" alt="Slide {{ forloop.counter }}">
+                        {% if image.caption %}
+                            <div class="carousel-caption d-none d-md-block">
+                                <p>{{ image.caption }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
             </div>
-        {% else %}
-            <p>No animation available for this map change.</p>
-        {% endif %}
+            <button class="carousel-control-prev" type="button" data-bs-target="#imageSlider" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#imageSlider" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        
     </div>
 
     <script>
